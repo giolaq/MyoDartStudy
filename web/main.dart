@@ -23,6 +23,19 @@ class Myo {
   
   WebSocket ws;
   
+  bool isLocked;
+  bool isConnected;
+  
+  Map orientationOffset = { 'x' : 0,
+                            'y' : 0,
+                            'z' : 0,
+                            'w' : 0
+                            };
+  
+  var lastIMU;
+  var arm; 
+  var direction;
+  
   Myo() {
     ws = initWebSocket();
   }
