@@ -8,36 +8,38 @@ import 'dart:convert';
 
 void main() {
   querySelector('#output').text = 'Dart is running.';
-  
+
   Myo myo = new Myo();
 }
 
 
 class Myo {
-  
+
   static int api_version = 3;
   static String socket_url = "ws://127.0.0.1:10138/myo/";
-  
+
   List events;
   List myos;
-  
+
   WebSocket ws;
-  
+
   bool isLocked;
   bool isConnected;
-  
-  Map orientationOffset = { 'x' : 0,
-                            'y' : 0,
-                            'z' : 0,
-                            'w' : 0
-                            };
-  
+
+  Map orientationOffset = {
+    'x': 0,
+    'y': 0,
+    'z': 0,
+    'w': 0
+  };
+
   var lastIMU;
-  var arm; 
+  var arm;
   var direction;
-  
+
   Myo() {
     ws = initWebSocket();
+    isLocked = true;
   }
 
   WebSocket initWebSocket([int retrySeconds = 2]) {
@@ -69,18 +71,43 @@ class Myo {
     });
 
     ws.onMessage.listen((MessageEvent e) {
-     handleMessage(e.data);
+      handleMessage(e.data);
     });
-    
+
     return ws;
   }
 
+  void lock() {
+    if (!this.isLocked) 
+    this.isLocked = true;
+  }
   
-  void handleMessage(String e){
-    List data = JSON.decode(e);
+  void unlock() {
+     if (this.isLocked)
+     this.isLocked = false;
+   }
+  void orientation(var data){
     print(data);
   }
- 
 
-  
+
+  void handleMessage(String e) {
+    List data = JSON.decode(e);
+    switch (data[1]["type"]) {
+      case 'locked':
+        lock();
+        break;
+      case 'unlocked':
+        unlock();
+        break;
+      case 'orientation':
+        orientation(data[1]);
+        break;
+      default:
+        print(data[1]["type"]);
+    }
+  }
+
+
+
 }
